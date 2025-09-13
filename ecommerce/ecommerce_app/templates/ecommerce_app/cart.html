@@ -1,0 +1,97 @@
+{% extends 'ecommerce_app/base.html' %}
+
+{% block title %}Shopping Cart - E-Commerce Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Your Shopping Cart</h1>
+    
+    {% if cart.items.count > 0 %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    {% for item in cart.items.all %}
+                    <div class="row mb-4 border-bottom pb-3">
+                        <div class="col-md-3">
+                            <img src="{{ item.product.image }}" class="img-fluid rounded" alt="{{ item.product.title }}" style="height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ item.product.title }}</h5>
+                            <p class="text-muted">{{ item.product.category }}</p>
+                            <p class="text-success">${{ item.product.price }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <form action="{% url 'update_cart_item' item_id=item.id %}" method="post" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm me-2" style="width: 100px;">
+                                    <input type="number" class="form-control" name="quantity" value="{{ item.quantity }}" min="1">
+                                </div>
+                                <button type="submit" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </form>
+                            <form action="{% url 'remove_from_cart' item_id=item.id %}" method="post" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>${{ cart.total_price }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span>$5.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <span>${{ cart.total_price|floatformat:2 }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong>${{ cart.total_price|add:5|floatformat:2 }}</strong>
+                    </div>
+                    <a href="{% url 'checkout' %}" class="btn btn-primary w-100">Proceed to Checkout</a>
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary w-100 mt-2">Continue Shopping</a>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6>Secure Payment</h6>
+                    <div class="d-flex justify-content-between">
+                        <i class="fab fa-cc-visa fa-2x text-primary"></i>
+                        <i class="fab fa-cc-mastercard fa-2x text-danger"></i>
+                        <i class="fab fa-cc-amex fa-2x text-info"></i>
+                        <i class="fab fa-cc-paypal fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+        <h3>Your cart is empty</h3>
+        <p class="text-muted">Looks like you haven't added any items to your cart yet.</p>
+        <a href="{% url 'index' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
